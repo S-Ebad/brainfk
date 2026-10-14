@@ -181,12 +181,12 @@ to one performance core. Every implementation printed exactly the same output.
 |---|---:|---:|---:|---:|
 | Plain interpreter (C, `-O2`) | 11.57 s | 7.48 s | 6.62 s | 9.37 s |
 | tritium, interpreter (`-r`) | 1.23 s | 0.68 s | 20 ms | 40 ms |
-| Brainfuck → C, `gcc -O2` | 0.58 s | 0.15 s | **2.3 ms** | 50 ms |
-| tritium, JIT (default) | 0.34 s | **0.13 s** | 10 ms | **6.1 ms** |
+| Brainfuck → C, `gcc -O2` | 0.58 s | 0.15 s | 2.3 ms | 50 ms |
+| tritium, JIT (default) | 0.34 s | **0.13 s** | 10 ms | 6.1 ms |
 | **brainfk `-O0`** | 0.85 s | 0.61 s | 3.27 s | 3.52 s |
 | **brainfk `-O1`** | 0.65 s | 0.55 s | 0.67 s | 1.73 s |
-| **brainfk `-O2`** | **0.28 s** | **0.13 s** | 9.1 ms | 0.16 s |
-| **brainfk `-O3`** | 1.7 ms | 0.13 s | 1.3 ms | 1.5 ms |
+| **brainfk `-O2`** | 0.28 s | **0.13 s** | 9.1 ms | 0.16 s |
+| **brainfk `-O3`** | **1.7 ms** | **0.13 s** | **1.3 ms** | **1.5 ms** |
 
 - The **plain interpreter** ([`bench/baselines/naive.c`](bench/baselines/naive.c))
   is what an unoptimized implementation costs.
@@ -196,9 +196,10 @@ to one performance core. Every implementation printed exactly the same output.
   mature optimizing interpreter with a JIT, run with 8-bit cells and EOF as 0 to
   match brainfk.
 
-gcc and tritium win `hanoi.b` and `long.b`, whose time goes into nested loops
-their optimizers can simplify further than brainfk's (which only rewrites
-innermost loops so far).
+Without `-O3`, brainfk is fastest on `mandelbrot.b` and ties tritium's JIT on
+`factor.b`. gcc and tritium win `hanoi.b` and `long.b`, whose time goes into
+nested loops their optimizers can simplify further than brainfk's (which only
+rewrites innermost loops so far).
 
 `-O3` moves the work to compile time instead: it runs all of `mandelbrot.b`,
 `hanoi.b` and `long.b` inside the compiler (in 3.6 s, 0.15 s and 1.3 s), leaving

@@ -7,7 +7,7 @@ An optimizing [Brainfuck](https://en.wikipedia.org/wiki/Brainfuck) compiler for
 x86-64 Linux, written in Rust. It compiles straight to NASM assembly and links a
 small static executable, with no runtime and no libc.
 
-On the classic Brainfuck benchmarks, its `-O2` output runs 40–900× faster than
+On the classic Brainfuck benchmarks, its `-O2` output runs 40–700× faster than
 a plain interpreter, and on `mandelbrot.b` it beats both C compiled with gcc and
 an optimizing JIT ([numbers below](#benchmarks)).
 
@@ -54,7 +54,7 @@ brainfk hello.b --emit asm     # just the assembly (a.asm), or --emit obj for a.
 | `--emit <exe\|obj\|asm>` | `exe` | What to produce |
 | `--tape-size <n>` | `30000` | Number of cells, up to 2³¹−1 |
 | `--bounds <mode>` | `undefined` | What happens when a cell off the tape is touched |
-| `-s, --step-limit <n>` | `1000000` | How long `-O3` runs the program at compile time |
+| `-s, --step-limit <n>` | `2000000000` | How long `-O3` runs the program at compile time (about 3 s for one that never ends) |
 
 ### Semantics
 
@@ -179,13 +179,14 @@ to one performance core. Every implementation printed exactly the same output.
 
 | | mandelbrot | factor | hanoi | long |
 |---|---:|---:|---:|---:|
-| Plain interpreter (C, `-O2`) | 13.00 s | 9.38 s | 7.88 s | 10.31 s |
-| tritium, interpreter (`-r`) | 1.41 s | 0.82 s | 20 ms | 40 ms |
-| Brainfuck → C, `gcc -O2` | 0.66 s | 0.19 s | **3.5 ms** | 60 ms |
-| tritium, JIT (default) | 0.40 s | **0.16 s** | 20 ms | **6.5 ms** |
-| **brainfk `-O0`** | 0.96 s | 0.74 s | 4.06 s | 3.79 s |
-| **brainfk `-O1`** | 0.74 s | 0.66 s | 0.80 s | 2.07 s |
-| **brainfk `-O2`** | **0.33 s** | **0.16 s** | 9.0 ms | 0.18 s |
+| Plain interpreter (C, `-O2`) | 11.57 s | 7.48 s | 6.62 s | 9.37 s |
+| tritium, interpreter (`-r`) | 1.23 s | 0.68 s | 20 ms | 40 ms |
+| Brainfuck → C, `gcc -O2` | 0.58 s | 0.15 s | **2.3 ms** | 50 ms |
+| tritium, JIT (default) | 0.34 s | **0.13 s** | 10 ms | **6.1 ms** |
+| **brainfk `-O0`** | 0.85 s | 0.61 s | 3.27 s | 3.52 s |
+| **brainfk `-O1`** | 0.65 s | 0.55 s | 0.67 s | 1.73 s |
+| **brainfk `-O2`** | **0.28 s** | **0.13 s** | 9.1 ms | 0.16 s |
+| **brainfk `-O3`** | 1.7 ms | 0.13 s | 1.3 ms | 1.5 ms |
 
 - The **plain interpreter** ([`bench/baselines/naive.c`](bench/baselines/naive.c))
   is what an unoptimized implementation costs.
@@ -197,12 +198,15 @@ to one performance core. Every implementation printed exactly the same output.
 
 gcc and tritium win `hanoi.b` and `long.b`, whose time goes into nested loops
 their optimizers can simplify further than brainfk's (which only rewrites
-innermost loops so far). `-O3` gives
-the same times as `-O2` here: these programs either read input right away or run
-for far longer than its default step limit.
+innermost loops so far).
 
-brainfk compiles every program in under 0.4 s, assembler and linker included.
-gcc needs 1.4 s for `mandelbrot.b` and 7.8 s for `hanoi.b`.
+`-O3` moves the work to compile time instead: it runs all of `mandelbrot.b`,
+`hanoi.b` and `long.b` inside the compiler (in 3.6 s, 0.15 s and 1.3 s), leaving
+executables that only print the result. `factor.b` reads its input first thing,
+so there's nothing `-O3` can run ahead of time.
+
+Up to `-O2`, brainfk compiles every program in under 0.2 s, assembler and linker
+included. gcc needs 0.5 s for `mandelbrot.b` and 3.3 s for `hanoi.b`.
 
 To reproduce:
 

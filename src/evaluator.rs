@@ -1,11 +1,11 @@
 use crate::lexer::{Token, TokenKind};
 
 /// How many steps -O3 runs a program for at compile time before giving up, unless
-/// `--step-limit` says otherwise. Even a program that never finishes only adds a
-/// few milliseconds of compile time.
+/// `--step-limit` says otherwise. That's about 3 seconds of compile time for a
+/// program that never finishes, and enough to run all of `mandelbrot.b`.
 ///
 /// A step is one token, or one cell moved by a `Scan`.
-pub const DEFAULT_STEP_LIMIT: u64 = 1_000_000;
+pub const DEFAULT_STEP_LIMIT: u64 = 2_000_000_000;
 
 /// The state a program is in after running part of it at compile time.
 pub struct Evaluation {

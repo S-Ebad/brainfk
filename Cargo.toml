@@ -2,6 +2,14 @@
 name = "brainfk"
 version = "0.1.0"
 edition = "2024"
+description = "An optimizing Brainfuck compiler for x86-64 Linux, with compile-time evaluation"
+license = "MIT"
+repository = "https://github.com/S-Ebad/brainfk"
+readme = "README.md"
+keywords = ["brainfuck", "compiler", "optimizer", "x86-64", "esolang"]
+categories = ["compilers", "command-line-utilities"]
+# Benchmarks and their third-party programs aren't part of the crate.
+exclude = ["bench/", ".github/"]
 
 [dependencies]
 anyhow = "1.0.104"
